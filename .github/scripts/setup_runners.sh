@@ -24,6 +24,7 @@ GIT_URL_API="https://api.github.com/repos"
 GIT_URL_BASE="https://github.com"
 GIT_URL_REPO="opendistro-for-elasticsearch/opendistro-build"
 
+
 # Run / Start instances and bootstrap as runners
 if [ "$SETUP_ACTION" = "run" ]
 then
