@@ -24,6 +24,8 @@ GIT_URL_API="https://api.github.com/repos"
 GIT_URL_BASE="https://github.com"
 GIT_URL_REPO="opendistro-for-elasticsearch/opendistro-build"
 
+aws configure list
+
 # Run / Start instances and bootstrap as runners
 if [ "$SETUP_ACTION" = "run" ]
 then
@@ -31,6 +33,7 @@ then
   # Provision VMs
   for instance_name1 in $SETUP_INSTANCE
   do
+    echo hahaha $instance_name1
     aws ec2 run-instances --image-id $SETUP_AMI_ID --count 1 --instance-type $SETUP_INSTANCE_TYPE \
                           --key-name $SETUP_KEYNAME --security-groups $SETUP_SECURITY_GROUP \
                           --iam-instance-profile Name=$SETUP_IAM_NAME \
