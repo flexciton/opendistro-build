@@ -133,7 +133,7 @@ jobs:
         with:
           repository: opendistro-for-elasticsearch/opendistro-infra
           ref: jenkins-test
-          token: ${{ secrets.READ_TOKEN }}
+          token: ${{ secrets.ODFE_RELEASE_BOT_PUBLIC_READ_TOKEN }}
       - name: Build Ubuntu Docker Image
         env:
           DOCKER_USER: ${{ secrets.DOCKER_USER }}

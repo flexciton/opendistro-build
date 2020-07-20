@@ -111,7 +111,7 @@ jobs:
         with:
           repository: opendistro-for-elasticsearch/opendistro-infra
           ref: jenkins-test
-          token: ${{ secrets.READ_TOKEN }}
+          token: ${{ secrets.ODFE_RELEASE_BOT_PUBLIC_READ_TOKEN }}
       - name: Build Centos Docker Image
         env:
           DOCKER_USER: ${{ secrets.DOCKER_USER }}
@@ -156,6 +156,7 @@ jobs:
           from: Opendistro Elasticsearch
           # Optional content type:
           content_type: text/html
+
   Test-Plugins-With-Security:
     needs: [signing-artifacts]
     name: Test-Plugins-With-Security
