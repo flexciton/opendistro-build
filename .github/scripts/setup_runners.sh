@@ -1,13 +1,16 @@
 #!/bin/bash
 set -e
 
+#####################################
+# Variables / Parameters / Settings #
+#####################################
+
 # This script allows users to manually assign parameters
-if [ "$#" -le 2 ] || [ "$#" -gt 3 ] || [ "$1" = "--help" ] || [ "$1" = "-h" ]
+if [ "$#" -ne 3 ] || [ "$1" = "--help" ] || [ "$1" = "-h" ]
 then
-  echo "Please assign at least 2 / at most 3 parameters when running this script"
-  echo "Example: $0 \$ACTION \$EC2_INSTANCE_NAME [\$GITHUB_TOKEN]"
+  echo "Please assign at 3 parameters when running this script"
+  echo "Example: $0 \$ACTION \$EC2_INSTANCE_NAMES(,) [\$GITHUB_TOKEN]"
   echo "Example: $0 \"run\" \"odfe-rpm-ism,odfe-rpm-sql\" \"<GitHub PAT>\""
-  echo "Example: $0 \"terminate\" \"odfe-rpm-*\""
   exit 1
 fi
 
@@ -17,6 +20,7 @@ SETUP_TOKEN=$3
 SETUP_AMI_ID="ami-01c504b077bde0476"
 SETUP_AMI_USER="ec2-user"
 SETUP_INSTANCE_TYPE="m5.xlarge"
+SETUP_INSTANCE_SIZE=20 #GiB
 SETUP_KEYNAME="odfe-release-runner"
 SETUP_SECURITY_GROUP="odfe-release-runner"
 SETUP_IAM_NAME="odfe-release-runner"
@@ -24,46 +28,68 @@ GIT_URL_API="https://api.github.com/repos"
 GIT_URL_BASE="https://github.com"
 GIT_URL_REPO="opendistro-for-elasticsearch/opendistro-build"
 
-
-# Run / Start instances and bootstrap as runners
+##################################################
+# Run / Start instances and bootstrap as runners #
+##################################################
 if [ "$SETUP_ACTION" = "run" ]
 then
 
-#  # Provision VMs
-#  for instance_name1 in $SETUP_INSTANCE
-#  do
-#    echo "provisioning ${instance_name1}"
-#    aws ec2 run-instances --image-id $SETUP_AMI_ID --count 1 --instance-type $SETUP_INSTANCE_TYPE \
-#                          --key-name $SETUP_KEYNAME --security-groups $SETUP_SECURITY_GROUP \
-#                          --iam-instance-profile Name=$SETUP_IAM_NAME \
-#                          --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=${instance_name1}}]"
-#    echo $?
-#    sleep 3
-#  done
-#
-#  sleep 60
+  # Provision VMs
+  for instance_name1 in $SETUP_INSTANCE
+  do
+    echo "Start provisioning ${instance_name1}"
+    aws ec2 run-instances --image-id $SETUP_AMI_ID --count 1 --instance-type $SETUP_INSTANCE_TYPE \
+                          --block-device-mapping DeviceName=/dev/xvda,Ebs={VolumeSize=$SETUP_INSTANCE_SIZE}
+                          --key-name $SETUP_KEYNAME --security-groups $SETUP_SECURITY_GROUP \
+                          --iam-instance-profile Name=$SETUP_IAM_NAME \
+                          --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$instance_name1}]" --quiet; echo $?
+    sleep 3
+  done
 
-
-  #aws configure list
-  #aws ssm describe-instance-information --output text
+  echo "Sleep for 60 seconds for EC2 instances to start running"
+  sleep 60
 
   # Setup VMs to register as runners
   for instance_name2 in $SETUP_INSTANCE
   do
-    echo "get runner token and bootstrap on Git"
+    echo "Make change of the runner hostname to ${instance_name2}"
+    aws ssm send-command --targets Key=tag:Name,Values=$instance_name2 --document-name "AWS-RunShellScript" \
+                         --parameters '{"commands": ["#!/bin/bash", "sudo hostnamectl set-hostname '${instance_name2}'"]}' \
+                         --output text --quiet; echo $?
+
+    echo "Get runner token and bootstrap on Git ${instance_name2}"
     instance_runner_token=`curl --silent -H "Authorization: token ${SETUP_TOKEN}" --request POST "${GIT_URL_API}/${GIT_URL_REPO}/actions/runners/registration-token" | jq -r .token`
     aws ssm send-command --targets Key=tag:Name,Values=$instance_name2 --document-name "AWS-RunShellScript" \
-                         --parameters '{"commands": ["#!/bin/bash", "sudo su - '${SETUP_AMI_USER}' -c \"cd actions-runner && ./config.sh --unattended --url '${GIT_URL_BASE}/${GIT_URL_REPO}' --labels '${instance_name2}' --token '${instance_runner_token}' > /tmp/123 && nohup ./run.sh &\""]}' \
-                         --output text
+                         --parameters '{"commands": ["#!/bin/bash", "sudo su - '${SETUP_AMI_USER}' -c \"cd $HOME/actions-runner && ./config.sh --unattended --url '${GIT_URL_BASE}/${GIT_URL_REPO}' --labels '${instance_name2}' --token '${instance_runner_token}' && nohup ./run.sh &\""]}' \
+                         --output text --quiet; echo $?
     sleep 3
   done
 
+  echo "All runners are online on Git"
 fi
 
-# Terminate / Delete instances and remove as runners
+######################################################
+# Terminate / Delete instances and remove as runners #
+######################################################
 if [ "$SETUP_ACTION" = "terminate" ]
 then
-  echo "Not Ready Yet"
+  for instance_name3 in $SETUP_INSTANCE
+  do
+    instance_runner_id_git=`curl --silent -H "Authorization: token ${SETUP_TOKEN}" --request GET "${GIT_URL_API}/${GIT_URL_REPO}/actions/runners" | jq ".runners[] | select(.name == \"${instance_name3}\") | .id"`
+    echo "Unbootstrap runner from Git on ${instance_name3} (${instance_runner_id_git})"
+    curl --silent -H "Authorization: token ${SETUP_TOKEN}" --request DELETE "${GIT_URL_API}/${GIT_URL_REPO}/actions/runners/${instance_runner_id_git}"; echo $?
+
+    instance_runner_id_ec2=`aws ec2 describe-instances --filters "Name=tag:Name,Values=$instance_name3" | jq -r .Reservations[].Instances[].InstanceId`
+    echo "Remove tags Name:${instance_name3}"
+    aws ec2 delete-tags --resources $instance_runner_id_ec2 --tags Key=Name --quiet; echo $?
+
+    echo "Terminate runner ${instance_name3}"
+    aws ec2 terminate-instances --instance-ids $instance_runner_id_ec2 --quiet; echo $?
+
+    sleep 3
+  done
+
+  echo "All runners are offline on Git"
 fi
 
 

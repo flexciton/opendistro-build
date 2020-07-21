@@ -22,7 +22,8 @@ jobs:
           aws-region: us-west-2
       - name: AWS Cli Provisioning
         #run: .github/scripts/setup_runners.sh run rpm-ism,rpm-alerting,rpm-sql,rpm-knn,rpm-ad ${{ secrets.ODFE_RELEASE_BOT_PAT }}
-        run: .github/scripts/setup_runners.sh run rpm-ism ${{ secrets.ODFE_RELEASE_BOT_PUBLIC_PRIVATE_READ_WRITE_TOKEN }}
+        run: .github/scripts/setup_runners.sh run odfe-rpm-ism ${{ secrets.ODFE_RELEASE_BOT_PUBLIC_PRIVATE_READ_WRITE_TOKEN }}
+        #run: .github/scripts/setup_runners.sh terminate odfe-rpm-ism ${{ secrets.ODFE_RELEASE_BOT_PUBLIC_PRIVATE_READ_WRITE_TOKEN }}
 
 #  Test-Plugins-With-Security:
 #    needs: [signing-artifacts]
