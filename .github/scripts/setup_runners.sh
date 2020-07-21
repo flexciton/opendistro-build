@@ -56,7 +56,7 @@ then
     #                     --parameters '{"commands": ["#!/bin/bash", "sudo su - '${SETUP_AMI_USER}' && cd actions-runner && ./config.sh --unattended --url '${GIT_URL_BASE}/${GIT_URL_REPO}' --labels '${instance_name2}' --token '${instance_runner_token}' > /tmp/123", "nohup ./run.sh &"]}' \
     #                     --output text
     aws ssm send-command --instance-ids i-059f7ca165e97500f --document-name "AWS-RunShellScript" \
-                         --parameters '{"commands": ["#!/bin/bash", "pwd > /tmp/123"]}' \
+                         --parameters '{"commands": ["#!/bin/bash", "id > /tmp/123", "su - ec2-user", "id >> /tmp/123"]}' \
                          --output text
     sleep 3
   done
