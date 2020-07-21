@@ -45,6 +45,7 @@ then
 #  sleep 60
 #
 
+  aws configure list
   aws ssm describe-instance-information --output text
 
   # Setup VMs to register as runners
