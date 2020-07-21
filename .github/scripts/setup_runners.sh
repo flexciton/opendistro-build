@@ -5,8 +5,6 @@ set -e
 # Variables / Parameters / Settings #
 #####################################
 
-echo $@
-
 # This script allows users to manually assign parameters
 if [ "$#" -ne 3 ] || [ "$1" = "--help" ] || [ "$1" = "-h" ]
 then
