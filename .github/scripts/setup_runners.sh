@@ -5,11 +5,13 @@ set -e
 # Variables / Parameters / Settings #
 #####################################
 
+echo $@
+
 # This script allows users to manually assign parameters
 if [ "$#" -ne 3 ] || [ "$1" = "--help" ] || [ "$1" = "-h" ]
 then
   echo "Please assign at 3 parameters when running this script"
-  echo "Example: $0 \$ACTION \$EC2_INSTANCE_NAMES(,) [\$GITHUB_TOKEN]"
+  echo "Example: $0 \$ACTION \$EC2_INSTANCE_NAMES(,) \$GITHUB_TOKEN"
   echo "Example: $0 \"run\" \"odfe-rpm-ism,odfe-rpm-sql\" \"<GitHub PAT>\""
   exit 1
 fi
