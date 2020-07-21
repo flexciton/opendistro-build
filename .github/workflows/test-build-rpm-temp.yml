@@ -23,11 +23,9 @@ jobs:
       - name: AWS Cli Provisioning
         run: |
           #!/bin/bash
-          RUNNERS="odfe-rpm-ism,odfe-rpm-ism-nosec,\
-                   odfe-rpm-alerting,odfe-rpm-alerting-nosec,\
-                   odfe-rpm-sql,odfe-rpm-sql-nosec,\
-                   odfe-rpm-knn,odfe-rpm-knn-nosec,\
-                   odfe-rpm-ad,odfe-rpm-ad-nosec"
+          RUNNERS="odfe-rpm-ism,odfe-rpm-ism-nosec,odfe-rpm-alerting,odfe-rpm-alerting-nosec,"
+          RUNNERS+="odfe-rpm-sql,odfe-rpm-sql-nosec,odfe-rpm-knn,odfe-rpm-knn-nosec,"
+          RUNNERS+="odfe-rpm-ad,odfe-rpm-ad-nosec"
           RUNNERS_KIBANA=""
           .github/scripts/setup_runners.sh run $RUNNERS ${{ secrets.ODFE_RELEASE_BOT_PAT }}
 
@@ -231,11 +229,9 @@ jobs:
 #      - name: AWS Cli Provisioning
 #        run: |
 #          #!/bin/bash
-#          RUNNERS="odfe-rpm-ism,odfe-rpm-ism-nosec,\
-#                   odfe-rpm-alerting,odfe-rpm-alerting-nosec,\
-#                   odfe-rpm-sql,odfe-rpm-sql-nosec,\
-#                   odfe-rpm-knn,odfe-rpm-knn-nosec,\
-#                   odfe-rpm-ad,odfe-rpm-ad-nosec"
+#          RUNNERS="odfe-rpm-ism,odfe-rpm-ism-nosec,odfe-rpm-alerting,odfe-rpm-alerting-nosec,"
+#          RUNNERS+="odfe-rpm-sql,odfe-rpm-sql-nosec,odfe-rpm-knn,odfe-rpm-knn-nosec,"
+#          RUNNERS+="odfe-rpm-ad,odfe-rpm-ad-nosec"
 #          RUNNERS_KIBANA=""
 #          .github/scripts/setup_runners.sh terminate $RUNNERS ${{ secrets.ODFE_RELEASE_BOT_PAT }}
 
