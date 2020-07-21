@@ -43,7 +43,7 @@ then
                           --key-name $SETUP_KEYNAME --security-groups $SETUP_SECURITY_GROUP \
                           --iam-instance-profile Name=$SETUP_IAM_NAME \
                           --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$instance_name1}]" > /dev/null 2>&1; echo $?
-    sleep 3
+    sleep 1
   done
 
   echo "Sleep for 120 seconds for EC2 instances to start running"
@@ -62,7 +62,7 @@ then
     aws ssm send-command --targets Key=tag:Name,Values=$instance_name2 --document-name "AWS-RunShellScript" \
                          --parameters '{"commands": ["#!/bin/bash", "sudo su - '${SETUP_AMI_USER}' -c \"cd actions-runner && ./config.sh --unattended --url '${GIT_URL_BASE}/${GIT_URL_REPO}' --labels '${instance_name2}' --token '${instance_runner_token}' && nohup ./run.sh &\""]}' \
                          --output text > /dev/null 2>&1; echo $?
-    sleep 3
+    sleep 1
   done
 
   echo "All runners are online on Git"
@@ -86,7 +86,7 @@ then
     echo "[${instance_name3}]: Terminate runner"
     aws ec2 terminate-instances --instance-ids $instance_runner_id_ec2 > /dev/null 2>&1; echo $?
 
-    sleep 3
+    sleep 1
   done
 
   echo "All runners are offline on Git"
