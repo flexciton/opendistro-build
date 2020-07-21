@@ -37,7 +37,7 @@ then
   # Provision VMs
   for instance_name1 in $SETUP_INSTANCE
   do
-    echo "Start provisioning ${instance_name1}"
+    echo "[${instance_name1}]: Start provisioning vm"
     aws ec2 run-instances --image-id $SETUP_AMI_ID --count 1 --instance-type $SETUP_INSTANCE_TYPE \
                           --block-device-mapping DeviceName=/dev/xvda,Ebs={VolumeSize=$SETUP_INSTANCE_SIZE} \
                           --key-name $SETUP_KEYNAME --security-groups $SETUP_SECURITY_GROUP \
@@ -46,18 +46,18 @@ then
     sleep 3
   done
 
-  echo "Sleep for 60 seconds for EC2 instances to start running"
-  sleep 60
+  echo "Sleep for 120 seconds for EC2 instances to start running"
+  sleep 120
 
   # Setup VMs to register as runners
   for instance_name2 in $SETUP_INSTANCE
   do
-    echo "Make change of the runner hostname to ${instance_name2}"
+    echo "[${instance_name2}]: Make change of the runner hostname"
     aws ssm send-command --targets Key=tag:Name,Values=$instance_name2 --document-name "AWS-RunShellScript" \
                          --parameters '{"commands": ["#!/bin/bash", "sudo hostnamectl set-hostname '${instance_name2}'"]}' \
                          --output text > /dev/null 2>&1; echo $?
 
-    echo "Get runner token and bootstrap on Git ${instance_name2}"
+    echo "[${instance_name2}]: Get runner token and bootstrap on Git"
     instance_runner_token=`curl --silent -H "Authorization: token ${SETUP_TOKEN}" --request POST "${GIT_URL_API}/${GIT_URL_REPO}/actions/runners/registration-token" | jq -r .token`
     aws ssm send-command --targets Key=tag:Name,Values=$instance_name2 --document-name "AWS-RunShellScript" \
                          --parameters '{"commands": ["#!/bin/bash", "sudo su - '${SETUP_AMI_USER}' -c \"cd $HOME/actions-runner && ./config.sh --unattended --url '${GIT_URL_BASE}/${GIT_URL_REPO}' --labels '${instance_name2}' --token '${instance_runner_token}' && nohup ./run.sh &\""]}' \
@@ -76,14 +76,14 @@ then
   for instance_name3 in $SETUP_INSTANCE
   do
     instance_runner_id_git=`curl --silent -H "Authorization: token ${SETUP_TOKEN}" --request GET "${GIT_URL_API}/${GIT_URL_REPO}/actions/runners" | jq ".runners[] | select(.name == \"${instance_name3}\") | .id"`
-    echo "Unbootstrap runner from Git on ${instance_name3} (${instance_runner_id_git})"
+    echo "[${instance_name3}]: Unbootstrap runner from Git"
     curl --silent -H "Authorization: token ${SETUP_TOKEN}" --request DELETE "${GIT_URL_API}/${GIT_URL_REPO}/actions/runners/${instance_runner_id_git}"; echo $?
 
     instance_runner_id_ec2=`aws ec2 describe-instances --filters "Name=tag:Name,Values=$instance_name3" | jq -r .Reservations[].Instances[].InstanceId`
-    echo "Remove tags Name:${instance_name3}"
+    echo "[${instance_name3}]: Remove tags Name"
     aws ec2 delete-tags --resources $instance_runner_id_ec2 --tags Key=Name > /dev/null 2>&1; echo $?
 
-    echo "Terminate runner ${instance_name3}"
+    echo "[${instance_name3}]: Terminate runner"
     aws ec2 terminate-instances --instance-ids $instance_runner_id_ec2 > /dev/null 2>&1; echo $?
 
     sleep 3
