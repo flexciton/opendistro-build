@@ -28,11 +28,15 @@ GIT_URL_API="https://api.github.com/repos"
 GIT_URL_BASE="https://github.com"
 GIT_URL_REPO="opendistro-for-elasticsearch/opendistro-build"
 
-##################################################
-# Run / Start instances and bootstrap as runners #
-##################################################
+###############################################
+# Run / Start instances and bootstrap runners #
+###############################################
 if [ "$SETUP_ACTION" = "run" ]
 then
+
+  echo ""
+  echo "Run / Start instances and bootstrap runners [${SETUP_INSTANCE}]"
+  echo ""
 
   # Provision VMs
   for instance_name1 in $SETUP_INSTANCE
@@ -74,11 +78,16 @@ then
 fi
 
 
-######################################################
-# Terminate / Delete instances and remove as runners #
-######################################################
+###################################################
+# Terminate / Delete instances and remove runners #
+###################################################
 if [ "$SETUP_ACTION" = "terminate" ]
 then
+
+  echo ""
+  echo "Terminate / Delete instances and remove runners [${SETUP_INSTANCE}]"
+  echo ""
+
   for instance_name3 in $SETUP_INSTANCE
   do
     instance_runner_id_git=`curl --silent -H "Authorization: token ${SETUP_TOKEN}" --request GET "${GIT_URL_API}/${GIT_URL_REPO}/actions/runners" | jq ".runners[] | select(.name == \"${instance_name3}\") | .id"`
