@@ -29,22 +29,25 @@ GIT_URL_REPO="opendistro-for-elasticsearch/opendistro-build"
 if [ "$SETUP_ACTION" = "run" ]
 then
 
-  # Provision VMs
-  for instance_name1 in $SETUP_INSTANCE
-  do
-    echo provisioning $instance_name1
-    aws ec2 run-instances --image-id $SETUP_AMI_ID --count 1 --instance-type $SETUP_INSTANCE_TYPE \
-                          --key-name $SETUP_KEYNAME --security-groups $SETUP_SECURITY_GROUP \
-                          --iam-instance-profile Name=$SETUP_IAM_NAME \
-                          --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=${instance_name1}}]"
-    sleep 3
-  done
-
-  sleep 60
-
+#  # Provision VMs
+#  for instance_name1 in $SETUP_INSTANCE
+#  do
+#    echo "provisioning ${instance_name1}"
+#    aws ec2 run-instances --image-id $SETUP_AMI_ID --count 1 --instance-type $SETUP_INSTANCE_TYPE \
+#                          --key-name $SETUP_KEYNAME --security-groups $SETUP_SECURITY_GROUP \
+#                          --iam-instance-profile Name=$SETUP_IAM_NAME \
+#                          --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=${instance_name1}}]"
+#                          --quiet
+#    echo $?
+#    sleep 3
+#  done
+#
+#  sleep 60
+#
   # Setup VMs to register as runners
   for instance_name2 in $SETUP_INSTANCE
   do
+    echo "get runner token and bootstrap on Git"
     instance_runner_token=`curl --silent -H "Authorization: token ${SETUP_TOKEN}" --request POST "${GIT_URL_API}/${GIT_URL_REPO}/actions/runners/registration-token" | jq -r .token`
     aws ssm send-command --targets Key=Name,Values=$instance_name2 --document-name "AWS-RunShellScript" \
                          --parameters '{"commands": ["#!/bin/bash", "sudo su - '${SETUP_AMI_USER}' && cd actions-runner && ./config.sh --unattended --url '${GIT_URL_BASE}/${GIT_URL_REPO}' --labels '${instance_name2}' --token '${instance_runner_token}'", "nohup ./run.sh &"]}' \
