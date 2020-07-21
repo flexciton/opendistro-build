@@ -39,7 +39,7 @@ then
   do
     echo "Start provisioning ${instance_name1}"
     aws ec2 run-instances --image-id $SETUP_AMI_ID --count 1 --instance-type $SETUP_INSTANCE_TYPE \
-                          --block-device-mapping DeviceName=/dev/xvda,Ebs={VolumeSize=$SETUP_INSTANCE_SIZE}
+                          --block-device-mapping DeviceName=/dev/xvda,Ebs={VolumeSize=$SETUP_INSTANCE_SIZE} \
                           --key-name $SETUP_KEYNAME --security-groups $SETUP_SECURITY_GROUP \
                           --iam-instance-profile Name=$SETUP_IAM_NAME \
                           --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$instance_name1}]" --quiet; echo $?
