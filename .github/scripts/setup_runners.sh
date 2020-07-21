@@ -44,6 +44,9 @@ then
 #
 #  sleep 60
 #
+
+  aws ssm describe-instance-information --output text
+
   # Setup VMs to register as runners
   for instance_name2 in $SETUP_INSTANCE
   do
