@@ -42,7 +42,7 @@ then
                           --block-device-mapping DeviceName=/dev/xvda,Ebs={VolumeSize=$SETUP_INSTANCE_SIZE} \
                           --key-name $SETUP_KEYNAME --security-groups $SETUP_SECURITY_GROUP \
                           --iam-instance-profile Name=$SETUP_IAM_NAME \
-                          --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$instance_name1}]" --quiet; echo $?
+                          --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$instance_name1}]" > /dev/null 2>&1; echo $?
     sleep 3
   done
 
@@ -55,13 +55,13 @@ then
     echo "Make change of the runner hostname to ${instance_name2}"
     aws ssm send-command --targets Key=tag:Name,Values=$instance_name2 --document-name "AWS-RunShellScript" \
                          --parameters '{"commands": ["#!/bin/bash", "sudo hostnamectl set-hostname '${instance_name2}'"]}' \
-                         --output text --quiet; echo $?
+                         --output text > /dev/null 2>&1; echo $?
 
     echo "Get runner token and bootstrap on Git ${instance_name2}"
     instance_runner_token=`curl --silent -H "Authorization: token ${SETUP_TOKEN}" --request POST "${GIT_URL_API}/${GIT_URL_REPO}/actions/runners/registration-token" | jq -r .token`
     aws ssm send-command --targets Key=tag:Name,Values=$instance_name2 --document-name "AWS-RunShellScript" \
                          --parameters '{"commands": ["#!/bin/bash", "sudo su - '${SETUP_AMI_USER}' -c \"cd $HOME/actions-runner && ./config.sh --unattended --url '${GIT_URL_BASE}/${GIT_URL_REPO}' --labels '${instance_name2}' --token '${instance_runner_token}' && nohup ./run.sh &\""]}' \
-                         --output text --quiet; echo $?
+                         --output text > /dev/null 2>&1; echo $?
     sleep 3
   done
 
@@ -81,10 +81,10 @@ then
 
     instance_runner_id_ec2=`aws ec2 describe-instances --filters "Name=tag:Name,Values=$instance_name3" | jq -r .Reservations[].Instances[].InstanceId`
     echo "Remove tags Name:${instance_name3}"
-    aws ec2 delete-tags --resources $instance_runner_id_ec2 --tags Key=Name --quiet; echo $?
+    aws ec2 delete-tags --resources $instance_runner_id_ec2 --tags Key=Name > /dev/null 2>&1; echo $?
 
     echo "Terminate runner ${instance_name3}"
-    aws ec2 terminate-instances --instance-ids $instance_runner_id_ec2 --quiet; echo $?
+    aws ec2 terminate-instances --instance-ids $instance_runner_id_ec2 > /dev/null 2>&1; echo $?
 
     sleep 3
   done
