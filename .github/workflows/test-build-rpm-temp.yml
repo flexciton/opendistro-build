@@ -9,26 +9,26 @@ on:
     branches: [opendistro-infra-issue-215-1]
 
 jobs:
-  Provision-Runners:
-    name: Provision-Runners
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_EC2_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_EC2_SECRET_ACCESS_KEY }}
-          aws-region: us-west-2
-      - name: AWS Cli Provisioning
-        run: |
-          #!/bin/bash
-          RUNNERS="odfe-rpm-ism,odfe-rpm-ism-nosec,odfe-rpm-alerting,odfe-rpm-alerting-nosec,"
-          RUNNERS+="odfe-rpm-sql,odfe-rpm-sql-nosec,odfe-rpm-knn,odfe-rpm-knn-nosec,"
-          RUNNERS+="odfe-rpm-ad,odfe-rpm-ad-nosec"
-          RUNNERS_KIBANA=""
-          .github/scripts/setup_runners.sh run $RUNNERS ${{ secrets.ODFE_RELEASE_BOT_PUBLIC_PRIVATE_READ_WRITE_TOKEN }}
-
+#  Provision-Runners:
+#    name: Provision-Runners
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v1
+#      - name: Configure AWS Credentials
+#        uses: aws-actions/configure-aws-credentials@v1
+#        with:
+#          aws-access-key-id: ${{ secrets.AWS_EC2_ACCESS_KEY_ID }}
+#          aws-secret-access-key: ${{ secrets.AWS_EC2_SECRET_ACCESS_KEY }}
+#          aws-region: us-west-2
+#      - name: AWS Cli Provisioning
+#        run: |
+#          #!/bin/bash
+#          RUNNERS="odfe-rpm-ism,odfe-rpm-ism-nosec,odfe-rpm-alerting,odfe-rpm-alerting-nosec,"
+#          RUNNERS+="odfe-rpm-sql,odfe-rpm-sql-nosec,odfe-rpm-knn,odfe-rpm-knn-nosec,"
+#          RUNNERS+="odfe-rpm-ad,odfe-rpm-ad-nosec"
+#          RUNNERS_KIBANA=""
+#          .github/scripts/setup_runners.sh run $RUNNERS ${{ secrets.ODFE_RELEASE_BOT_PUBLIC_PRIVATE_READ_WRITE_TOKEN }}
+#
 #  Test-Plugins-With-Security:
 #    needs: [signing-artifacts]
 #    name: Test-Plugins-With-Security
@@ -214,24 +214,24 @@ jobs:
 #          ./gradlew integTest -Dtests.rest.cluster=localhost:9200 -Dtests.cluster=localhost:9200 -Dtests.clustername=es-integrationtest
 
 
-#  CleanUp-Runners:
-#    #needs: [Test-Plugins-With-Security]
-#    name: CleanUp-Runners
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v1
-#      - name: Configure AWS Credentials
-#        uses: aws-actions/configure-aws-credentials@v1
-#        with:
-#          aws-access-key-id: ${{ secrets.AWS_EC2_ACCESS_KEY_ID }}
-#          aws-secret-access-key: ${{ secrets.AWS_EC2_SECRET_ACCESS_KEY }}
-#          aws-region: us-west-2
-#      - name: AWS Cli Provisioning
-#        run: |
-#          #!/bin/bash
-#          RUNNERS="odfe-rpm-ism,odfe-rpm-ism-nosec,odfe-rpm-alerting,odfe-rpm-alerting-nosec,"
-#          RUNNERS+="odfe-rpm-sql,odfe-rpm-sql-nosec,odfe-rpm-knn,odfe-rpm-knn-nosec,"
-#          RUNNERS+="odfe-rpm-ad,odfe-rpm-ad-nosec"
-#          RUNNERS_KIBANA=""
-#          .github/scripts/setup_runners.sh terminate $RUNNERS ${{ secrets.ODFE_RELEASE_BOT_PUBLIC_PRIVATE_READ_WRITE_TOKEN }}
+  CleanUp-Runners:
+    #needs: [Test-Plugins-With-Security]
+    name: CleanUp-Runners
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_EC2_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_EC2_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+      - name: AWS Cli Provisioning
+        run: |
+          #!/bin/bash
+          RUNNERS="odfe-rpm-ism,odfe-rpm-ism-nosec,odfe-rpm-alerting,odfe-rpm-alerting-nosec,"
+          RUNNERS+="odfe-rpm-sql,odfe-rpm-sql-nosec,odfe-rpm-knn,odfe-rpm-knn-nosec,"
+          RUNNERS+="odfe-rpm-ad,odfe-rpm-ad-nosec"
+          RUNNERS_KIBANA=""
+          .github/scripts/setup_runners.sh terminate $RUNNERS ${{ secrets.ODFE_RELEASE_BOT_PUBLIC_PRIVATE_READ_WRITE_TOKEN }}
 

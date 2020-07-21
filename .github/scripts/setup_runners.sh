@@ -46,7 +46,10 @@ then
     sleep 1
   done
 
+  echo ""
   echo "Sleep for 120 seconds for EC2 instances to start running"
+  echo ""
+
   sleep 120
 
   # Setup VMs to register as runners
@@ -65,8 +68,11 @@ then
     sleep 1
   done
 
+  echo ""
   echo "All runners are online on Git"
+  echo ""
 fi
+
 
 ######################################################
 # Terminate / Delete instances and remove as runners #
