@@ -36,8 +36,7 @@ then
 #    aws ec2 run-instances --image-id $SETUP_AMI_ID --count 1 --instance-type $SETUP_INSTANCE_TYPE \
 #                          --key-name $SETUP_KEYNAME --security-groups $SETUP_SECURITY_GROUP \
 #                          --iam-instance-profile Name=$SETUP_IAM_NAME \
-#                          --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=${instance_name1}}]" \
-#                          --quiet
+#                          --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=${instance_name1}}]"
 #    echo $?
 #    sleep 3
 #  done
@@ -53,7 +52,8 @@ then
   do
     echo "get runner token and bootstrap on Git"
     instance_runner_token=`curl --silent -H "Authorization: token ${SETUP_TOKEN}" --request POST "${GIT_URL_API}/${GIT_URL_REPO}/actions/runners/registration-token" | jq -r .token`
-    aws ssm send-command --targets Key=tag:Name,Values=$instance_name2 --document-name "AWS-RunShellScript" \
+    #aws ssm send-command --targets Key=tag:Name,Values=$instance_name2 --document-name "AWS-RunShellScript" \
+    aws ssm send-command --instance-ids i-059f7ca165e97500f --document-name "AWS-RunShellScript" \
                          --parameters '{"commands": ["#!/bin/bash", "sudo su - '${SETUP_AMI_USER}' && cd actions-runner && ./config.sh --unattended --url '${GIT_URL_BASE}/${GIT_URL_REPO}' --labels '${instance_name2}' --token '${instance_runner_token}' > /tmp/123", "nohup ./run.sh &"]}' \
                          --output text
     sleep 3
