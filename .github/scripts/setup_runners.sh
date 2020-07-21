@@ -79,7 +79,7 @@ then
     echo "[${instance_name3}]: Unbootstrap runner from Git"
     curl --silent -H "Authorization: token ${SETUP_TOKEN}" --request DELETE "${GIT_URL_API}/${GIT_URL_REPO}/actions/runners/${instance_runner_id_git}"; echo $?
 
-    instance_runner_id_ec2=`aws ec2 describe-instances --filters "Name=tag:Name,Values=$instance_name3" | jq -r .Reservations[].Instances[].InstanceId`
+    instance_runner_id_ec2=`aws ec2 describe-instances --filters "Name=tag:Name,Values=$instance_name3" | jq -r '.Reservations[].Instances[] | select(.State.Code == 16) | .InstanceId'` # Only running instances
     echo "[${instance_name3}]: Remove tags Name"
     aws ec2 delete-tags --resources $instance_runner_id_ec2 --tags Key=Name > /dev/null 2>&1; echo $?
 
