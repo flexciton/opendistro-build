@@ -17,6 +17,10 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
+  {{- with .Values.elasticsearch.master.statefulset.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   labels:
 {{ include "opendistro-es.labels.standard" . | indent 4 }}
     role: master

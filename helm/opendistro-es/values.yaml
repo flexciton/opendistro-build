@@ -76,6 +76,9 @@ kibana:
     type: ClusterIP
     annotations: {}
 
+  deployment:
+    annotations: {}
+
   config: {}
     ## Default Kibana configuration from kibana-docker.
     # server.name: kibana
@@ -262,6 +265,9 @@ elasticsearch:
     #            role: master
     podAnnotations: {}
 
+    statefulset:
+      annotations: {}
+
   data:
     enabled: true
     replicas: 1
@@ -327,6 +333,9 @@ elasticsearch:
     #              role: data
     podAnnotations: {}
 
+    statefulset:
+      annotations: {}
+
   client:
     enabled: true
     service:
@@ -391,6 +400,9 @@ elasticsearch:
     #            matchLabels:
     #              role: client
     podAnnotations: {}
+
+    deployment:
+      annotations: {}
 
   config: {}
     ## Example Config
