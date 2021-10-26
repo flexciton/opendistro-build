@@ -151,7 +151,7 @@ global:
     enabled: true
 
   # Optionally override the docker registry to use for images
-  imageRegistry: docker.io
+  imageRegistry:
 
   ## Optionally specify an array of imagePullSecrets.
   ## Secrets must be manually created in the namespace.
