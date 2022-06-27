@@ -20,13 +20,13 @@ Due to the uniqueness of different users environments, this chart aims to cater 
 ## TL;DR
 ```
 ❯ helm package .
-❯ helm install opendistro-es-1.13.2.tgz --name opendistro-es
+❯ helm install opendistro-es-1.13.3.tgz --name opendistro-es
 ```
 
 ## Installing the Chart
 To install the chart with the release name `my-release`:
 
-`❯ helm install --name my-release opendistro-es-1.13.2.tgz`
+`❯ helm install --name my-release opendistro-es-1.13.3.tgz`
 
 The command deploys OpenDistro Kibana and Elasticsearch with its associated components (data statefulsets, masters, clients) on the Kubernetes cluster in the default configuration.
 
@@ -498,6 +498,7 @@ The following table lists the configurable parameters of the opendistro elastics
 | `kibana.ingress.tls`                                      | Kibana Ingress TLS configuration                                                                                                                         | `[]`                                                                    |
 | `kibana.ingress.labels`                                   | Kibana Ingress labels                                                                                                                                    | `{}`                                                                    |
 | `kibana.ingress.path`                                     | Kibana Ingress paths                                                                                                                                     | `[]`                                                                    |
+| `kibana.ingress.pathType`                                 | Kibana Ingress path type                                                                                                                                 | `ImplementationSpecific`                                                |
 | `kibana.config`                                           | Kibana Configuration (`kibana.yml`)                                                                                                                      | `{}`                                                                    |
 | `kibana.nodeSelector`                                     | Define which Nodes the Pods are scheduled on.                                                                                                            | `{}`                                                                    |
 | `kibana.podAnnotations`                                   | Kibana pods annotations                                                                                                                                  | `{}`                                                                    |
@@ -576,6 +577,7 @@ The following table lists the configurable parameters of the opendistro elastics
 | `elasticsearch.client.ingress.hosts`                      | Elasticsearch clients Ingress Hostnames                                                                                                                  | `[]`                                                                    |
 | `elasticsearch.client.ingress.tls`                        | Elasticsearch clients Ingress TLS configuration                                                                                                          | `[]`                                                                    |
 | `elasticsearch.client.ingress.labels`                     | Elasticsearch clients Ingress labels                                                                                                                     | `{}`                                                                    |
+| `elasticsearch.client.ingress.pathType`                   | Elasticsearch clients Ingress path type                                                                                                                  | `ImplementationSpecific`                                                |
 | `elasticsearch.client.livenessProbe`                      | Configuration for the [livenessProbe](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/)                     | `[]`                                                                    |
 | `elasticsearch.client.readinessProbe`                     | Configuration for the [readinessProbe](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/)                    | `[]`                                                                    |
 | `elasticsearch.client.startupProbe`                     | Configuration for the [startupProbe](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/)                    | `[]`                                                                    |
